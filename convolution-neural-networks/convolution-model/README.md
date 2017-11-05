@@ -56,3 +56,47 @@ W = tf.get_variable("W", [1,2,3,4], initializer = ...)
 W1 = tf.get_variable("W1", [4, 4, 3, 8], initializer = tf.contrib.layers.xavier_initializer(seed = 0))
 W2 = tf.get_variable("W2", [2, 2, 8, 16], initializer = tf.contrib.layers.xavier_initializer(seed = 0))
 ```
+
+### Forward Propagation
+
+* Tensorflow takes care of carrying out the convolution steps
+  * `tf.nn.conv2d(X, W1, strides = [1,s,s,1], padding = 'SAME')`
+    * It convolves `X` with kernels `W1`s
+    * [TF Doc here](https://www.tensorflow.org/api_docs/python/tf/nn/conv2d)
+    * Input `X`
+    * Kernels: `W1`
+    * Strides: `strides = [1, s, s, 1]`
+    * Padding `SAME` or `VALID`
+  * `tf.nn.max_pool(A, ksize = [1,f,f,1], strides = [1,s,s,1], padding = 'SAME')`
+    * It performs max pooling
+    * [TF Doc here](https://www.tensorflow.org/api_docs/python/tf/nn/max_pool)
+  * `tf.nn.relu(Z)`
+    * It performs the elementwise ReLU of `Z`
+    * [TF Doc here](https://www.tensorflow.org/api_docs/python/tf/nn/relu)
+  * `tf.contrib.layers.flatten(P)`
+    * It flattens into a 1D vector while maintaining the batch-size -> `[batch_size, k]`
+    * [TF Doc here](https://www.tensorflow.org/api_docs/python/tf/contrib/layers/flatten)
+  * `tf.contrib.layers.fully_connected(F, num_outputs)`
+    * It returns the output using a FC
+    * `F`: flattened input
+    * [TF Doc here](https://www.tensorflow.org/api_docs/python/tf/contrib/layers/fully_connected)
+    * It automatically intializes the weights of the FC layer
+
+### Compute Cost
+
+* `tf.nn.softmax_cross_entropy_with_logits(logits = Z3, labels = Y)`
+  * It computes the softmax entropy loss
+    * Softmax activation function
+    * Resulting loss
+    * [TF Doc here](https://www.tensorflow.org/api_docs/python/tf/nn/softmax_cross_entropy_with_logits)
+* `tf.reduce_mean`
+  * Computes the meam of elments across dimensions of a tensor
+  * It is used to sum the losses over the batch examples to get the overall cost
+  * [TF Doc here](https://www.tensorflow.org/api_docs/python/tf/reduce_mean)
+
+### Model
+
+* Do not forget to initialize global variables: `init = tf.global_variables_initializer()`
+* Run the initialization: `sess.run(init)`
+* AdamOptimizer minimizing the cost: `optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)`
+* Run the computation graph on a minibatch: `_, temp_cost = sess.run([optimizer, cost], feed_dict = {X: minibatch_X, Y: minibatch_Y}`
